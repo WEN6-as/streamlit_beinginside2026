@@ -217,14 +217,14 @@ def main():
 
     with st.sidebar:
         st.header("Konfiguration")
-        h0 = st.number_input("Hausstrom [kW/h]", 1000, 10000, 3500)
-        hp = st.number_input("Wärmepumpe [kW/h]", 0, 10000, 5000)
+        h0 = st.number_input("Hausstrom [kWh]", 1000, 10000, 3500)
+        hp = st.number_input("Wärmepumpe [kWh]", 0, 10000, 5000)
         ev = st.number_input("Fahrleistung [km]", 0, 50000, 15000)
         pv = st.slider("PV-Leistung [kWp]", 0, 100, 20)
         dn = st.number_input("Dachneigung [°]", 0, 60, 30)
         ar= st.selectbox("Ausrichtung", ["Norden", "Nord-Osten", "Osten", "Süd-Osten", "Süden", "Süd-Westen", "Westen", "Nord-Westen"])
         
-        bat = st.slider("Speicher [kW/h]", 0, 100, 10)
+        bat = st.slider("Speicher [kWh]", 0, 100, 10)
         col_enwg, col_info = st.columns([4,1])
         st.markdown("""
         <style>
