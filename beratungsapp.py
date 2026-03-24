@@ -222,7 +222,8 @@ def main():
         ev = st.number_input("Fahrleistung [km]", 0, 50000, 15000)
         pv = st.slider("PV-Leistung [kWp]", 0.0, 20.0, 10.0)
         dn = st.number_input("Dachneigung [°]", 0, 60, 30)
-        ar= st.slider("Ausrichtung (-90°=Ost, 0°=Süd, 90°=West)",-90,90,0)
+        ar= st.selectbox("Ausrichtung", [Norden, Nord-Osten, Osten, Süd-Osten, Süden, Süd-Westen, Westen, Nord-Westen])
+        
         bat = st.slider("Speicher [kW/h]", 0.0, 20.0, 10.0)
         col_enwg, col_info = st.columns([4,1])
         st.markdown("""
