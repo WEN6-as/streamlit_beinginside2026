@@ -224,61 +224,61 @@ def main():
         bat = st.slider("Speicher [kWh]", 0.0, 20.0, 10.0)
         col_enwg, col_info = st.columns([4,1])
         enwg = st.selectbox("§ 14a EnWG Modul", [1,2,3])
-st.markdown("""
-<style>
-.tooltip {
-  position: relative;
-  display: inline-block;
-  cursor: pointer;
-  margin-left: 6px;
-  color: #005eb8;
-  font-weight: bold;
-}
-
-.tooltip .tooltiptext {
-  visibility: hidden;
-  width: 320px;
-  background-color: #f9f9f9;
-  color: #000;
-  text-align: left;
-  border-radius: 8px;
-  padding: 10px;
-  position: absolute;
-  z-index: 1;
-  top: 125%;
-  left: 0;
-  box-shadow: 0px 2px 10px rgba(0,0,0,0.2);
-  font-size: 13px;
-}
-
-.tooltip:hover .tooltiptext {
-  visibility: visible;
-}
-</style>
-
-<div style="display: flex; align-items: center;">
-  <span style="font-size:16px; font-weight:600;">§ 14a EnWG Modul</span>
-  
-  <div class="tooltip">ⓘ
-    <div class="tooltiptext">
-      <b>1️⃣ Modul 1</b><br>
-      Einmal im Jahr Gutschrift von <b>168€</b>, egal wann Strom verbraucht wird.<br><br>
-      
-      <b>2️⃣ Modul 2</b><br>
-      Jede kWh, in der ein E-Auto an der häuslichen Wallbox lädt, wird der Strom zu <b>60% billiger</b>.<br>
-      ➤ Lohnt sich für Vielfahrer.<br><br>
-      
-      <b>3️⃣ Modul 3</b><br>
-      Am Tag wird der Strom sehr teuer, nachts (23–05 Uhr) super billig.<br>
-      ➤ Ideal für Nachtladen.
-    </div>
-  </div>
-</div>
-""", unsafe_allow_html=True)
-
-enwg = st.selectbox("", [1, 2, 3])
-smart = st.toggle("Optimierung aktivieren", True)
-calc_btn = st.button("Berechnung starten", type="primary")
+        st.markdown("""
+        <style>
+        .tooltip {
+          position: relative;
+          display: inline-block;
+          cursor: pointer;
+          margin-left: 6px;
+          color: #005eb8;
+          font-weight: bold;
+        }
+        
+        .tooltip .tooltiptext {
+          visibility: hidden;
+          width: 320px;
+          background-color: #f9f9f9;
+          color: #000;
+          text-align: left;
+          border-radius: 8px;
+          padding: 10px;
+          position: absolute;
+          z-index: 1;
+          top: 125%;
+          left: 0;
+          box-shadow: 0px 2px 10px rgba(0,0,0,0.2);
+          font-size: 13px;
+        }
+        
+        .tooltip:hover .tooltiptext {
+          visibility: visible;
+        }
+        </style>
+        
+        <div style="display: flex; align-items: center;">
+          <span style="font-size:16px; font-weight:600;">§ 14a EnWG Modul</span>
+          
+          <div class="tooltip">ⓘ
+            <div class="tooltiptext">
+              <b>1️⃣ Modul 1</b><br>
+              Einmal im Jahr Gutschrift von <b>168€</b>, egal wann Strom verbraucht wird.<br><br>
+              
+              <b>2️⃣ Modul 2</b><br>
+              Jede kWh, in der ein E-Auto an der häuslichen Wallbox lädt, wird der Strom zu <b>60% billiger</b>.<br>
+              ➤ Lohnt sich für Vielfahrer.<br><br>
+              
+              <b>3️⃣ Modul 3</b><br>
+              Am Tag wird der Strom sehr teuer, nachts (23–05 Uhr) super billig.<br>
+              ➤ Ideal für Nachtladen.
+            </div>
+          </div>
+        </div>
+        """, unsafe_allow_html=True)
+    
+        enwg = st.selectbox("", [1, 2, 3])
+        smart = st.toggle("Optimierung aktivieren", True)
+        calc_btn = st.button("Berechnung starten", type="primary")
 
     if calc_btn:
         gen = LoadProfileGenerator()
