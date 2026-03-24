@@ -212,7 +212,7 @@ def plot_cost_comparison(metrics):
 # --- MAIN STREAMLIT APP ---
 def main():
     st.set_page_config(page_title="Studi Energy Check - Tarif-Check", layout="wide")
-    st.markdown("<h1 style='color: #d50037;'>Studi Energy Berater Dresden</h1>", unsafe_allow_html=True)
+    st.markdown("<h1 style='color: #d50037;'>Stecker Checker</h1> <br> <h2>Deine Dose-Deine Regeln</h2>, unsafe_allow_html=True)
     st.title("⚡ Dynamik-Rechner für Einfamilienhäuser")
 
     with st.sidebar:
