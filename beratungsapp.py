@@ -217,11 +217,13 @@ def main():
 
     with st.sidebar:
         st.header("Konfiguration")
-        h0 = st.number_input("Hausstrom [kWh]", 1000, 10000, 3500)
-        hp = st.number_input("Wärmepumpe [kWh]", 0, 10000, 5000)
+        h0 = st.number_input("Hausstrom [kW/h]", 1000, 10000, 3500)
+        hp = st.number_input("Wärmepumpe [kW/h]", 0, 10000, 5000)
         ev = st.number_input("Fahrleistung [km]", 0, 50000, 15000)
         pv = st.slider("PV-Leistung [kWp]", 0.0, 20.0, 10.0)
-        bat = st.slider("Speicher [kWh]", 0.0, 20.0, 10.0)
+        dn = st.number_input("Dachneigung [°]", 0, 60, 30)
+        ar= st.slider("Ausrichtung (0°=Sud, 90°=West, -90°=Ost)",-90,90,0)
+        bat = st.slider("Speicher [kW/h]", 0.0, 20.0, 10.0)
         col_enwg, col_info = st.columns([4,1])
         enwg = st.selectbox("§ 14a EnWG Modul", [1,2,3])
         st.markdown("""
