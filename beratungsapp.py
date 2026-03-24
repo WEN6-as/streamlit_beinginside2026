@@ -220,7 +220,7 @@ def main():
         h0 = st.number_input("Hausstrom [kW/h]", 1000, 10000, 3500)
         hp = st.number_input("Wärmepumpe [kW/h]", 0, 10000, 5000)
         ev = st.number_input("Fahrleistung [km]", 0, 50000, 15000)
-        pv = st.slider("PV-Leistung [kWp]", 0.0, 20.0, 10.0)
+        pv = st.slider("PV-Leistung [kWp]", 0, 100, 20)
         dn = st.number_input("Dachneigung [°]", 0, 60, 30)
         ar= st.selectbox("Ausrichtung", ["Norden", "Nord-Osten", "Osten", "Süd-Osten", "Süden", "Süd-Westen", "Westen", "Nord-Westen"])
         
