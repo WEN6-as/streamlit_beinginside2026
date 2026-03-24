@@ -261,12 +261,12 @@ def main():
           
           <div class="tooltip">ⓘ
             <div class="tooltiptext">
-              <b>Modul 1</b><br>
+              <b><ins>Modul 1</ins></b><br>
               Einmal im Jahr Gutschrift von 168€, egal wann Strom verbraucht wird.<br><br>
-              <b>Modul 2</b><br>
+              <b><ins>Modul 2</ins></b><br>
               Jede kWh, in der ein E-Auto an der häuslichen Wallbox lädt, wird der Strom zu 60% billiger.<br>
               ➤ Lohnt sich für Vielfahrer.<br><br>
-              <b>Modul 3</b><br>
+              <b><ins>Modul 3</ins></b><br>
               Am Tag wird der Strom sehr teuer, nachts (23–05 Uhr) super billig.<br>
               ➤ Ideal für Nachtladen.
             </div>
