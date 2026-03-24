@@ -222,7 +222,27 @@ def main():
         ev = st.number_input("Fahrleistung [km]", 0, 50000, 15000)
         pv = st.slider("PV-Leistung [kWp]", 0.0, 20.0, 10.0)
         bat = st.slider("Speicher [kWh]", 0.0, 20.0, 10.0)
-        enwg = st.selectbox("§ 14a EnWG Modul", [1,2,3])
+        col_enwg, col_info = st.columns([4,1])
+
+with col_enwg:
+    enwg = st.selectbox("§ 14a EnWG Modul", [1,2,3])
+
+with col_info:
+    with st.popover("ℹ️"):
+        st.markdown("""
+**§ 14a EnWG – Erklärung der Module**
+
+**1️⃣ Modul 1**  
+Einmal im Jahr Gutschrift von **168€**, egal wann Strom verbraucht wird.
+
+**2️⃣ Modul 2**  
+Jede kWh, in der ein E-Auto an der häuslichen Wallbox lädt, wird der Strom zu **60% billiger**.  
+➡️ Lohnt sich vor allem für Kunden, die viel mit ihrem E-Auto fahren.
+
+**3️⃣ Modul 3**  
+Am Tag wird der Strom sehr teuer, nachts (**23–05 Uhr**) super billig.  
+➡️ Lohnt sich für Leute mit E-Autos, die überwiegend nachts laden.
+""")
         smart = st.toggle("Optimierung aktivieren", True)
         calc_btn = st.button("Berechnung starten", type="primary")
 
