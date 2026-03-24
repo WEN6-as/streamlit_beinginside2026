@@ -240,8 +240,8 @@ def main():
     Am Tag wird der Strom sehr teuer, nachts (**23–05 Uhr**) super billig.  
     ➡️ Lohnt sich für Leute mit E-Autos, die überwiegend nachts laden.
     """)
-            smart = st.toggle("Optimierung aktivieren", True)
-            calc_btn = st.button("Berechnung starten", type="primary")
+    smart = st.toggle("Optimierung aktivieren", True)
+    calc_btn = st.button("Berechnung starten", type="primary")
 
     if calc_btn:
         gen = LoadProfileGenerator()
