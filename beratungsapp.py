@@ -224,7 +224,7 @@ def main():
         dn = st.number_input("Dachneigung [°]", 0, 60, 30)
         ar= st.selectbox("Ausrichtung", ["Norden", "Nord-Osten", "Osten", "Süd-Osten", "Süden", "Süd-Westen", "Westen", "Nord-Westen"])
         
-        bat = st.slider("Speicher [kW/h]", 0.0, 20.0, 10.0)
+        bat = st.slider("Speicher [kW/h]", 0, 100, 10)
         col_enwg, col_info = st.columns([4,1])
         st.markdown("""
         <style>
