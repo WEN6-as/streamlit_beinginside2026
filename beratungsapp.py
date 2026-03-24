@@ -277,8 +277,8 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 enwg = st.selectbox("", [1, 2, 3])
-        smart = st.toggle("Optimierung aktivieren", True)
-        calc_btn = st.button("Berechnung starten", type="primary")
+smart = st.toggle("Optimierung aktivieren", True)
+calc_btn = st.button("Berechnung starten", type="primary")
 
     if calc_btn:
         gen = LoadProfileGenerator()
