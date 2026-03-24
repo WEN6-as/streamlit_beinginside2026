@@ -224,9 +224,6 @@ def main():
         bat = st.slider("Speicher [kWh]", 0.0, 20.0, 10.0)
         col_enwg, col_info = st.columns([4,1])
 
-with col_enwg:
-    enwg = st.selectbox("§ 14a EnWG Modul", [1,2,3])
-
 with col_info:
     with st.popover("ℹ️"):
         st.markdown("""
