@@ -224,24 +224,24 @@ def main():
         bat = st.slider("Speicher [kWh]", 0.0, 20.0, 10.0)
         col_enwg, col_info = st.columns([4,1])
 
-    with col_info:
-        with st.popover("ℹ️"):
-            st.markdown("""
-    **§ 14a EnWG – Erklärung der Module**
+        with col_info:
+            with st.popover("ℹ️"):
+                st.markdown("""
+        **§ 14a EnWG – Erklärung der Module**
     
-    **1️⃣ Modul 1**  
-    Einmal im Jahr Gutschrift von **168€**, egal wann Strom verbraucht wird.
+        **1️⃣ Modul 1**  
+        Einmal im Jahr Gutschrift von **168€**, egal wann Strom verbraucht wird.
     
-    **2️⃣ Modul 2**  
-    Jede kWh, in der ein E-Auto an der häuslichen Wallbox lädt, wird der Strom zu **60% billiger**.  
-    ➡️ Lohnt sich vor allem für Kunden, die viel mit ihrem E-Auto fahren.
+        **2️⃣ Modul 2**  
+        Jede kWh, in der ein E-Auto an der häuslichen Wallbox lädt, wird der Strom zu **60% billiger**.  
+        ➡️ Lohnt sich vor allem für Kunden, die viel mit ihrem E-Auto fahren.
     
-    **3️⃣ Modul 3**  
-    Am Tag wird der Strom sehr teuer, nachts (**23–05 Uhr**) super billig.  
-    ➡️ Lohnt sich für Leute mit E-Autos, die überwiegend nachts laden.
-    """)
-    smart = st.toggle("Optimierung aktivieren", True)
-    calc_btn = st.button("Berechnung starten", type="primary")
+        **3️⃣ Modul 3**  
+        Am Tag wird der Strom sehr teuer, nachts (**23–05 Uhr**) super billig.  
+        ➡️ Lohnt sich für Leute mit E-Autos, die überwiegend nachts laden.
+        """)
+        smart = st.toggle("Optimierung aktivieren", True)
+        calc_btn = st.button("Berechnung starten", type="primary")
 
     if calc_btn:
         gen = LoadProfileGenerator()
