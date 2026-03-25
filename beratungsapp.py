@@ -263,14 +263,14 @@ def main():
         pv, dn, ar, bat = 0, 30, "Süden", 0
         hat_pv = st.radio("Haben Sie eine PV-Anlage im Einsatz?", ["Ja", "Nein"], index=1)
         if hat_pv == "Ja":
-            pv = st.slider("PV-Leistung [kWp]", 0, 100, 20)
+            pv = st.slider("PV-Leistung [kWp]", 1, 100, 20)
             dn = st.number_input("Dachneigung [°]", 0, 60, 30)
             ar = st.selectbox("Ausrichtung", ["Norden", "Nord-Osten", "Osten", "Süd-Osten", "Süden", "Süd-Westen", "Westen", "Nord-Westen"])
             
             # --- 3. Speicher (Nur relevant, wenn PV vorhanden) ---
             hat_speicher = st.radio("Haben Sie einen dazugehörigen Energiespeicher im Einsatz?", ["Ja", "Nein"], index=1)
             if hat_speicher == "Ja":
-                bat = st.slider("Speicherkapazität [kWh]", 0, 100, 10)
+                bat = st.slider("Speicherkapazität [kWh]", 1, 100, 10)
         
         st.divider()
 
@@ -290,7 +290,7 @@ def main():
             auswahl_zeit = st.selectbox("Wann laden Sie normalerweise Ihr Auto?", options=uhrzeiten, index=17)
             ev_charge_hour = int(auswahl_zeit.split(":")[0])
             
-            wallbox_power = st.selectbox("Welche Ausgangsleistung liefert Ihre Wallbox?", ["11kW", "22kW"])
+            wallbox_power = st.selectbox("Welche Ausgangsleistung liefert Ihre Wallbox?", ["11 kW", "22 kW"])
 
         st.divider()
 
