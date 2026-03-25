@@ -217,7 +217,36 @@ def main():
 
     with st.sidebar:
         st.header("Konfiguration")
-        h0 = st.number_input("Hausstrom [kWh]", 1000, 10000, 3500)
+# --- UI-Optimierung: Hausstrom Auswahl (Progressive Disclosure) ---
+        hausstrom_optionen = {
+            "1 Person (1.500 kWh)": 1500,
+            "2 Personen (2.500 kWh)": 2500,
+            "3 Personen (3.500 kWh)": 3500,
+            "4 Personen (4.500 kWh)": 4500,
+            "Eigene Eingabe...": "custom"
+        }
+
+        auswahl_hausstrom = st.selectbox(
+            "Personen im Haushalt (Hausstrom)", 
+            options=list(hausstrom_optionen.keys()),
+            index=2 # Setzt "3 Personen (3.500 kWh)" als Standardwert
+        )
+
+        # Logik für das Einblenden des benutzerdefinierten Eingabefelds
+        if hausstrom_optionen[auswahl_hausstrom] == "custom":
+            # Das spezifische Rot #d50037 kann in Streamlit über die config.toml als Primary Color gesetzt werden,
+            # das beeinflusst dann den Fokus-Status dieses Input-Feldes.
+            h0 = st.number_input(
+                "Eigener Hausstrombedarf [kWh]", 
+                min_value=500, 
+                max_value=20000, 
+                value=3500, 
+                step=100,
+                help="Gib hier deinen genauen Jahresverbrauch in kWh ein."
+            )
+        else:
+            h0 = hausstrom_optionen[auswahl_hausstrom]
+        # ------------------------------------------------------------------
         hp = st.number_input("Wärmepumpe [kWh]", 0, 10000, 5000)
         ev = st.number_input("Fahrleistung [km]", 0, 50000, 15000)
         pv = st.slider("PV-Leistung [kWp]", 0, 100, 20)
