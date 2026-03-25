@@ -356,7 +356,7 @@ def main():
           </div>
         </div>
         """, unsafe_allow_html=True)
-        Wähle ein Modul des flexiblen Vertrages, welches du mit dem statischen Vertrag vergleichen möchtest: 
+        "Wähle ein Modul des flexiblen Vertrages, welches du mit dem statischen Vertrag vergleichen möchtest:" 
         enwg = st.selectbox("", [1, 2, 3], label_visibility="collapsed")
         smart = st.toggle("Optimierung aktivieren", True)
         
