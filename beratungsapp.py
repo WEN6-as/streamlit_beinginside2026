@@ -12,7 +12,6 @@ class LoadProfileGenerator:
         self.time_index = pd.date_range(start=f'{year}-01-01', end=f'{year}-12-31 23:00:00', freq='H')
         
     def generate_h0_profile(self, annual_demand_kwh):
-        # Umwandlung in numpy arrays, um AttributeError zu vermeiden
         hour = self.time_index.hour.values
         day_of_year = self.time_index.dayofyear.values
         
@@ -20,10 +19,12 @@ class LoadProfileGenerator:
         seasonal_factor = 1 + 0.2 * np.cos(day_of_year * 2 * np.pi / 365)
         profile = base_curve * seasonal_factor
         
-        # Sicherstellen, dass wir np.sum verwenden
         return (profile / np.sum(profile)) * annual_demand_kwh
 
     def generate_pv_profile(self, installed_kwp, location_factor=1050):
+        if installed_kwp <= 0:
+            return np.zeros(len(self.time_index))
+            
         hour = self.time_index.hour.values
         day_of_year = self.time_index.dayofyear.values
         
@@ -35,6 +36,9 @@ class LoadProfileGenerator:
         return (pv_profile / np.sum(pv_profile)) * total_yield
 
     def generate_hp_profile(self, annual_demand_kwh):
+        if annual_demand_kwh <= 0:
+            return np.zeros(len(self.time_index))
+            
         day_of_year = self.time_index.dayofyear.values
         temp_profile = 9 - 11 * np.cos((day_of_year - 15) * 2 * np.pi / 365)
         heating_demand = np.maximum(0, 15 - temp_profile)
@@ -42,12 +46,21 @@ class LoadProfileGenerator:
         hp_profile = heating_demand / cop
         return (hp_profile / np.sum(hp_profile)) * annual_demand_kwh
 
-    def generate_ev_profile(self, annual_mileage_km, consumption_per_100km=18):
+    def generate_ev_profile(self, annual_mileage_km, charge_start_hour=17, consumption_per_100km=18):
+        if annual_mileage_km <= 0:
+            return np.zeros(len(self.time_index))
+            
         total_demand_kwh = (annual_mileage_km / 100) * consumption_per_100km
         hour = self.time_index.hour.values
         ev_profile = np.zeros(len(self.time_index))
-        # Laden primär zwischen 17 und 22 Uhr
-        charge_window = (hour >= 17) & (hour <= 22)
+        
+        # Ladefenster dynamisch an Input anpassen (ca. 4 Stunden Ladedauer)
+        end_hour = (charge_start_hour + 4) % 24
+        if charge_start_hour < end_hour:
+            charge_window = (hour >= charge_start_hour) & (hour <= end_hour)
+        else:
+            charge_window = (hour >= charge_start_hour) | (hour <= end_hour)
+            
         ev_profile[charge_window] = 1.0
         ev_profile *= np.random.uniform(0.5, 1.5, size=len(ev_profile))
         return (ev_profile / np.sum(ev_profile)) * total_demand_kwh
@@ -56,7 +69,7 @@ class LoadProfileGenerator:
         df = pd.DataFrame(index=self.time_index)
         df['load_h0'] = self.generate_h0_profile(config['h0_kwh'])
         df['load_hp'] = self.generate_hp_profile(config['hp_kwh'])
-        df['load_ev'] = self.generate_ev_profile(config['ev_km'])
+        df['load_ev'] = self.generate_ev_profile(config['ev_km'], config.get('ev_charge_hour', 17))
         df['pv_gen'] = self.generate_pv_profile(config['pv_kwp'])
         df['total_load'] = df['load_h0'] + df['load_hp'] + df['load_ev']
         df['net_load'] = df['total_load'] - df['pv_gen']
@@ -197,15 +210,15 @@ def plot_load_profile(df, date_range):
     mask = (df.index >= date_range[0]) & (df.index <= date_range[1])
     sub_df = df.loc[mask]
     fig = go.Figure()
-    fig.add_trace(go.Scatter(x=sub_df.index, y=sub_df['total_load'], name="Verbrauch", fill='tozeroy', line_color='##d50037'))
-    fig.add_trace(go.Scatter(x=sub_df.index, y=sub_df['pv_gen'], name="PV-Erzeugung", fill='tozeroy', line_color='#d50037'))
-    fig.add_trace(go.Scatter(x=sub_df.index, y=sub_df['grid_import'], name="Netzbezug", line=dict(dash='dash', color='#d50037')))
+    fig.add_trace(go.Scatter(x=sub_df.index, y=sub_df['total_load'], name="Verbrauch", fill='tozeroy', line_color='#d50037', opacity=0.3))
+    fig.add_trace(go.Scatter(x=sub_df.index, y=sub_df['pv_gen'], name="PV-Erzeugung", fill='tozeroy', line_color='#ffc107', opacity=0.3))
+    fig.add_trace(go.Scatter(x=sub_df.index, y=sub_df['grid_import'], name="Netzbezug", line=dict(dash='dash', color='#005eb8')))
     fig.update_layout(title="Lastgang vs. Erzeugung", template="plotly_white", margin=dict(l=20,r=20,t=40,b=20))
     return fig
 
 def plot_cost_comparison(metrics):
     fig = px.bar(x=['Statisch', 'Dynamisch'], y=[metrics['Kosten Statisch [€/J]'], metrics['Kosten Dynamisch [€/J]']],
-                 color=['Statisch', 'Dynamisch'], color_discrete_map={'Statisch': '#9e9e9e', 'Dynamisch': '#005eb8'},
+                 color=['Statisch', 'Dynamisch'], color_discrete_map={'Statisch': '#9e9e9e', 'Dynamisch': '#d50037'},
                  title="Jahreskosten Vergleich (€)")
     return fig
 
@@ -217,7 +230,8 @@ def main():
 
     with st.sidebar:
         st.header("Konfiguration")
-# --- UI-Optimierung: Hausstrom Auswahl (Progressive Disclosure) ---
+        
+        # --- 1. Hausstrom ---
         hausstrom_optionen = {
             "1 Person (1.500 kWh)": 1500,
             "2 Personen (2.500 kWh)": 2500,
@@ -227,33 +241,71 @@ def main():
         }
 
         auswahl_hausstrom = st.selectbox(
-            "Personen im Haushalt (Hausstrom)", 
+            "Welchen Energiebedarf hat Ihr Haushalt?", 
             options=list(hausstrom_optionen.keys()),
-            index=2 # Setzt "3 Personen (3.500 kWh)" als Standardwert
+            index=2 
         )
 
-        # Logik für das Einblenden des benutzerdefinierten Eingabefelds
         if hausstrom_optionen[auswahl_hausstrom] == "custom":
-            # Das spezifische Rot #d50037 kann in Streamlit über die config.toml als Primary Color gesetzt werden,
-            # das beeinflusst dann den Fokus-Status dieses Input-Feldes.
             h0 = st.number_input(
-                "Eigener Hausstrombedarf [kWh]", 
+                "Eigener Energiebedarf (volle kWh)", 
                 min_value=500, 
                 max_value=20000, 
                 value=3500, 
-                step=100,
-                help="Gib hier deinen genauen Jahresverbrauch in kWh ein."
+                step=100
             )
         else:
             h0 = hausstrom_optionen[auswahl_hausstrom]
-        # ------------------------------------------------------------------
-        hp = st.number_input("Wärmepumpe [kWh]", 0, 10000, 5000)
-        ev = st.number_input("Fahrleistung [km]", 0, 50000, 15000)
-        pv = st.slider("PV-Leistung [kWp]", 0, 100, 20)
-        dn = st.number_input("Dachneigung [°]", 0, 60, 30)
-        ar= st.selectbox("Ausrichtung", ["Norden", "Nord-Osten", "Osten", "Süd-Osten", "Süden", "Süd-Westen", "Westen", "Nord-Westen"])
+            
+        st.divider()
+
+        # --- 2. PV-Anlage ---
+        pv, dn, ar, bat = 0, 30, "Süden", 0
+        hat_pv = st.radio("Haben Sie eine PV-Anlage im Einsatz?", ["Ja", "Nein"], index=1)
+        if hat_pv == "Ja":
+            pv = st.slider("PV-Leistung [kWp]", 0, 100, 20)
+            dn = st.number_input("Dachneigung [°]", 0, 60, 30)
+            ar = st.selectbox("Ausrichtung", ["Norden", "Nord-Osten", "Osten", "Süd-Osten", "Süden", "Süd-Westen", "Westen", "Nord-Westen"])
+            
+            # --- 3. Speicher (Nur relevant, wenn PV vorhanden) ---
+            hat_speicher = st.radio("Haben Sie einen dazugehörigen Energiespeicher im Einsatz?", ["Ja", "Nein"], index=1)
+            if hat_speicher == "Ja":
+                bat = st.slider("Speicherkapazität [kWh]", 0, 100, 10)
         
-        bat = st.slider("Speicher [kWh]", 0, 100, 10)
+        st.divider()
+
+        # --- 4. E-Auto ---
+        ev = 0
+        ev_charge_hour = 17 # Default
+        wallbox_power = "11kW"
+        hat_ev = st.radio("Besitzen Sie ein E-Auto, welches Sie zuhause laden?", ["Ja", "Nein"], index=1)
+        if hat_ev == "Ja":
+            km_woche = st.number_input("Fahrstrecke pro Wochentag [km]", min_value=0, value=40, step=5)
+            km_wochenende = st.number_input("Fahrstrecke pro Tag am Wochenende [km]", min_value=0, value=20, step=5)
+            
+            # Berechnung der jährlichen Fahrleistung: (5 Werktage * 52) + (2 Wochenendtage * 52)
+            ev = (km_woche * 5 * 52) + (km_wochenende * 2 * 52)
+            
+            uhrzeiten = [f"{i:02d}:00" for i in range(24)]
+            auswahl_zeit = st.selectbox("Wann laden Sie normalerweise Ihr Auto?", options=uhrzeiten, index=17)
+            ev_charge_hour = int(auswahl_zeit.split(":")[0])
+            
+            wallbox_power = st.selectbox("Welche Ausgangsleistung liefert Ihre Wallbox?", ["11kW", "22kW"])
+
+        st.divider()
+
+        # --- 5. Wärmepumpe ---
+        hp = 0
+        hat_wp = st.radio("Heizen Sie mit einer Wärmepumpe?", ["Ja", "Nein"], index=1)
+        if hat_wp == "Ja":
+            wp_bekannt = st.radio("Kennen Sie den jährlichen Energieverbrauch [kWh] Ihrer Wärmepumpe?", ["Ja", "Nein (Rechnung mit Fixwert)"], index=1)
+            if wp_bekannt == "Ja":
+                hp = st.number_input("Wie viel Energie [kWh] benötigen Sie zum Heizen?", min_value=0, value=5000, step=100)
+            else:
+                hp = 5000 # Fixwert
+        
+        st.divider()
+
         col_enwg, col_info = st.columns([4,1])
         st.markdown("""
         <style>
@@ -262,7 +314,7 @@ def main():
           display: inline-block;
           cursor: pointer;
           margin-left: 6px;
-          color: #005eb8;
+          color: #d50037;
           font-weight: bold;
         }
         
@@ -305,10 +357,14 @@ def main():
         </div>
         """, unsafe_allow_html=True)
     
-        enwg = st.selectbox("", [1, 2, 3])
+        enwg = st.selectbox("", [1, 2, 3], label_visibility="collapsed")
         smart = st.toggle("Optimierung aktivieren", True)
-        calc_btn = st.button("Berechnung starten", type="primary")
+        
+        # Leerraum vor dem Button für besseres Design
+        st.write("") 
+        calc_btn = st.button("Berechnung starten", type="primary", use_container_width=True)
 
+    # --- HAUPTBEREICH (Ergebnisse) ---
     if calc_btn:
         gen = LoadProfileGenerator()
         te = TariffEngine()
@@ -316,7 +372,14 @@ def main():
         calc = EconomicCalculator()
 
         # Simulation
-        df = gen.get_combined_dataframe({'h0_kwh': h0, 'hp_kwh': hp, 'ev_km': ev, 'pv_kwp': pv})
+        config_data = {
+            'h0_kwh': h0, 
+            'hp_kwh': hp, 
+            'ev_km': ev, 
+            'ev_charge_hour': ev_charge_hour, 
+            'pv_kwp': pv
+        }
+        df = gen.get_combined_dataframe(config_data)
         df['spot_price_pure'] = te.generate_synthetic_spot_prices(df.index)
         df['dynamic_price_brutto'] = te.get_dynamic_tariff_components(df['spot_price_pure'])
         df = opt.simulate_smart_system(df, use_dynamic_logic=smart)
@@ -337,7 +400,8 @@ def main():
             date_sel = st.date_input("Detailansicht wählen", value=datetime(2025, 6, 15))
             st.plotly_chart(plot_load_profile(df, (pd.to_datetime(date_sel), pd.to_datetime(date_sel)+pd.Timedelta(days=2))), use_container_width=True)
     else:
-        st.info("Bitte links Parameter wählen und 'Berechnung starten' klicken.")
+        st.info("Bitte nutzen Sie die Konfiguration auf der linken Seite und klicken Sie auf 'Berechnung starten'.")
 
 if __name__ == "__main__":
     main()
+   
