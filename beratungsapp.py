@@ -197,9 +197,9 @@ def plot_load_profile(df, date_range):
     mask = (df.index >= date_range[0]) & (df.index <= date_range[1])
     sub_df = df.loc[mask]
     fig = go.Figure()
-    fig.add_trace(go.Scatter(x=sub_df.index, y=sub_df['total_load'], name="Verbrauch", fill='tozeroy', line_color='#d32f2f'))
-    fig.add_trace(go.Scatter(x=sub_df.index, y=sub_df['pv_gen'], name="PV-Erzeugung", fill='tozeroy', line_color='#fbc02d'))
-    fig.add_trace(go.Scatter(x=sub_df.index, y=sub_df['grid_import'], name="Netzbezug", line=dict(dash='dash', color='#1976d2')))
+    fig.add_trace(go.Scatter(x=sub_df.index, y=sub_df['total_load'], name="Verbrauch", fill='tozeroy', line_color='##d50037'))
+    fig.add_trace(go.Scatter(x=sub_df.index, y=sub_df['pv_gen'], name="PV-Erzeugung", fill='tozeroy', line_color='#d50037'))
+    fig.add_trace(go.Scatter(x=sub_df.index, y=sub_df['grid_import'], name="Netzbezug", line=dict(dash='dash', color='#d50037')))
     fig.update_layout(title="Lastgang vs. Erzeugung", template="plotly_white", margin=dict(l=20,r=20,t=40,b=20))
     return fig
 
